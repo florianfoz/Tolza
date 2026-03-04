@@ -4,7 +4,7 @@ set(CMAKE_C_COMPILER "clang")
 set(CMAKE_CXX_COMPILER "clang++")
 
 
-project(velox
+project(velox-toolchain
     VERSION 2026.1.1
     LANGUAGES C CXX
 )
@@ -28,73 +28,35 @@ file(GLOB_RECURSE VELOX_SOURCES
     src/*.cpp
 )
 
-add_executable(velox ${VELOX_SOURCES})
-
-add_compile_definitions(k_project_dir="${CMAKE_SOURCE_DIR}")
-
-option(VELOX_DEV_ARGS "Enable dev CLI args" ON)
-
-if(VELOX_DEV_ARGS)
-  target_compile_definitions(velox PRIVATE VELOX_DEV_ARGS)
-endif()
+add_executable(velox-toolchain ${VELOX_SOURCES})
 
 # ----------------------------
-# Thirdparty
+# Vendor
 # ----------------------------
-file(GLOB_RECURSE THIRD_SOURCES
+file(GLOB_RECURSE VENDOR_SOURCES
     CONFIGURE_DEPENDS
-    thirdparty/*.cpp
-    thirdparty/*.c
+    vendor/*.cpp
+    vendor/*.c
 )
 
-add_library(velox_thirdparty ${THIRD_SOURCES})
+add_library(velox_vendor ${VENDOR_SOURCES})
 
 # ----------------------------
 # Include directories
 # ----------------------------
 # Root for project includes
-target_include_directories(velox
+target_include_directories(velox-toolchain
     PRIVATE
         ${CMAKE_SOURCE_DIR}/src
 )
 
-target_include_directories(velox_thirdparty
+target_include_directories(velox_vendor
     SYSTEM PUBLIC
-        ${CMAKE_SOURCE_DIR}/thirdparty
+        ${CMAKE_SOURCE_DIR}/vendor
 )
 
-# ----------------------------
-# LLVM / Clang (portable way)
-# ----------------------------
-find_package(LLVM REQUIRED CONFIG)
-find_package(Clang REQUIRED CONFIG)
-
-# LLVM include dirs & defs
-target_include_directories(velox
+target_link_libraries(velox-toolchain
     PRIVATE
-        ${LLVM_INCLUDE_DIRS}
-        ${CLANG_INCLUDE_DIRS}
+        velox_vendor
 )
 
-target_compile_definitions(velox
-    PRIVATE
-        ${LLVM_DEFINITIONS}
-)
-
-# Link against LLVM + libclang
-target_link_libraries(velox
-    PRIVATE
-        LLVM
-        libclang
-        velox_thirdparty
-)
-
-# ----------------------------
-# Warnings (disabled by default)
-# ----------------------------
-
-#if (MSVC)
-#    target_compile_options(velox PRIVATE /w)
-#else()
-#    target_compile_options(velox PRIVATE -w)
-#endif()

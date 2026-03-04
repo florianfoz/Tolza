@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-#include "toolchain/parser_command.hpp"
+#include "parser_command.hpp"
 
 int main(int argc, const char* argv[])
 {
