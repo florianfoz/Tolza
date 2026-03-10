@@ -20,14 +20,12 @@ struct Visitor_Default : public Visitor_Base {
   }
 
   template <size_t Code>
-  void error_two_lines(const ast::Node& first, const ScriptInfo& first_scr_info, const ast::Node& second,
-                       const ScriptInfo& second_scr_info, const std::string& code, const std::string& msg,
-                       const std::string& hint)
+  void error_two_lines(const ast::Node& first, const ast::Node& second, const std::string& msg, const std::string& hint)
   {
-    auto first_error = Error_Diagnostic<Code>(first_scr_info, first._token, {}, current_EPhase(), EErrorSeverity::error,
-                                              {}, msg, hint);
+    auto first_error = Error_Diagnostic<Code>(*first._scr_info, first._token, {}, current_EPhase(),
+                                              EErrorSeverity::error, {}, msg, hint);
 
-    auto second_error = Error_Diagnostic<Code>(second_scr_info, second._token, {}, current_EPhase(),
+    auto second_error = Error_Diagnostic<Code>(*second._scr_info, second._token, {}, current_EPhase(),
                                                EErrorSeverity::error, {}, msg, hint);
 
     std::string out = "[from file] " color_MAGENTA + first_error.print_source() + color_RESET "\n";
@@ -53,9 +51,10 @@ struct Visitor_Default : public Visitor_Base {
   void visit(ast::ADeclaration& n) override;
   void visit(ast::ALocal& n) override;
   void visit(ast::AExpression& n) override;
+  void visit(ast::AIdentifier& n) override;
   void visit(ast::Expr_ID& n) override;
   void visit(ast::Expr_ID_Qualified& n) override;
-  void visit(ast::Expr_ID_Generic& n) override;
+  void visit(ast::Expr_ID_Type& n) override;
 
   void visit(ast::Root& n) override;
 
@@ -85,7 +84,8 @@ struct Visitor_Default : public Visitor_Base {
   void visit(ast::declaration::local::Capture_Member& n) override;
 
   void visit(ast::declaration::local::Parameter& n) override;
-  void visit(ast::declaration::local::Generic_Parameter& n) override;
+  void visit(ast::declaration::local::Generic_Parameter_Element& n) override;
+  void visit(ast::declaration::local::Generic_Parameters& n) override;
 
   void visit(ast::declaration::local::Pattern& n) override;
   void visit(ast::declaration::local::Pattern_Enum& n) override;
@@ -137,10 +137,10 @@ struct Visitor_Default : public Visitor_Base {
   void visit(ast::literal::Floating& n) override;
 
   void visit(ast::literal::ASCII& n) override;
-  void visit(ast::literal::UFT32& n) override;
+  void visit(ast::literal::UTF32& n) override;
 
   void visit(ast::literal::Text& n) override;
-  void visit(ast::literal::Text_Lerp& n) override;
+  void visit(ast::literal::Text_Interpolation& n) override;
   void visit(ast::literal::Textual_Element& n) override;
   void visit(ast::literal::Textual_Format& n) override;
   void visit(ast::literal::Format_Specifier& n) override;
@@ -153,13 +153,15 @@ struct Visitor_Default : public Visitor_Base {
   void visit(ast::literal::Tuple& n) override;
 
   void visit(ast::literal::Range& n) override;
+  void visit(ast::literal::Iterator& n) override;
+
+  void visit(ast::literal::Enum& n) override;
 
   void visit(ast::literal::Component& n) override;
   void visit(ast::literal::Entity& n) override;
 
   // ============ Expression ============
   void visit(ast::expression::If_Ternary& n) override;
-  void visit(ast::expression::Enum& n) override;
 
   void visit(ast::expression::Member_Access& n) override;
 
