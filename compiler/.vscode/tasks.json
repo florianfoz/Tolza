@@ -2,9 +2,44 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "build-debug",
+            "label": "Clear Console",
             "type": "shell",
-            "command": "${workspaceFolder}/build-debug.sh",
+            "command": "clear"
+        },
+        {
+            "label": "Configure Debug",
+            "dependsOn": "Clear Console",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--preset",
+                "debug"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Configure Release",
+            "dependsOn": "Clear Console",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--preset",
+                "release"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "build-debug",
+            "dependsOn": "Configure Debug",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "--preset",
+                "debug",
+                "--parallel",
+                "6"
+            ],
             "options": {
                 "cwd": "${workspaceFolder}"
             },
@@ -12,11 +47,26 @@
         },
         {
             "label": "build-release",
+            "dependsOn": "Configure Release",
             "type": "shell",
-            "command": "${workspaceFolder}/build-release.sh",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "--preset",
+                "release",
+                "--parallel",
+                "6"
+            ],
             "options": {
                 "cwd": "${workspaceFolder}"
             },
+            "problemMatcher": []
+        },
+        {
+            "label": "Tolza Install",
+            "dependsOn": "build-release",
+            "type": "shell",
+            "command": "cmake --install build/release",
             "problemMatcher": []
         }
     ]
