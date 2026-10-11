@@ -1,6 +1,6 @@
 # Design Proposal (RFC) Example
 
-**Author:** Foz Florian
+**Author:** Foz Florian  
 **Date:** 2026-05-19  
 **Domain:**
 - [X] Compiler
