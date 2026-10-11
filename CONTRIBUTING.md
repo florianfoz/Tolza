@@ -1,6 +1,6 @@
 <div align=center>
-  
-  ![🇫🇷 Français](docs/CONTRIBUTING_FR.md)
+
+  [🇫🇷 Français](https://github.com/florianfoz/tolza/blob/main/docs/CONTRIBUTING_FR.md)
 
   # CONTRIBUTING
 
@@ -8,22 +8,20 @@
 
 # How to contribute ?
 Before consedering to contribute to this project, please read some documentations:
-- ![Contributing](CONTRIBUTING.md) (this document)
-- ![Project Presentation](README.md) (for all)
-- ![Technical Implementation](MANIFEST.md) (for paradigms, concepts, syntax, behaviour)
+- [Project Presentation](https://github.com/florianfoz/Tolza) (for all)
+- [WIKI](https://github.com/florianfoz/Tolza/wiki) (for more information, paradigms, concepts, syntax, behaviour, ...)
 - The source code preliminarily (for code contributors)
 
 ## Contribute to the code
-1. Clone this repository to your machine
-2. Follow ![Contributing Code](docs/CONTRIBUTING_CODE.md) software installation
-3. Contribute to the code by following ![Pull Request Rules](docs/CONTRIBUTING_CODE.md#Pull-Request-Rules)
-4. Write a ![pull request template](docs/PULL_REQUEST_TEMPLATE.md) to explain the pull request
->  If you make an innovation, add a ![RFC template](docs/RFC_TEMPLATE.md) to explain and justify the innovation
+1. Go to [Getting Started](https://github.com/florianfoz/Tolza/wiki/Getting-Started)
+3. Contribute to the code by following [Pull Request Rules](https://github.com/florianfoz/Tolza/wiki/Getting-Started#Pull-Request-Rules)
+4. Write a [pull request template](https://github.com/florianfoz/Tolza/bloc/main/docs/Contributing-PR-Template.md) to explain the pull request
+>  If you make an innovation, add a [RFC template](https://github.com/florianfoz/Tolza/bloc/main/docs/Contributing-RFC-Template.md) to explain and justify the innovation
 5. Make your pull resquest
 
 ## Contribute to the philosophy
 1. Makes sure that your suggestion is not duplicated or already rejected
-2. Write a ![Philosophical template](docs/PHILOSOPHICAL_TEMPLATE.md) to explain your suggestion
+2. Write a [Philosophical template](https://github.com/florianfoz/Tolza/bloc/main/docs/Contributing-Philo-Tempalte.md) to explain your suggestion
 3. Don't hesitate to integrate graphical representation, examples, pseudo code, ...
 4. Exchange ideas and discuss with the community to refine your proposal, or even turn it into a community proposal.
 
@@ -80,7 +78,7 @@ This project contains several sub-projects:
   - some conventions
 - Visual studio code plugin: [here](https://github.com/TheProgrammare/Tolza-VScode-Plugin)
 
-Check documentation [here](/docs/wiki) for more information and schematic representation
+Check the [WIKI](https://github.com/florianfoz/Tolza/wiki) for more information and schematic representation
 
 # Governance
 - **Founder**:  
