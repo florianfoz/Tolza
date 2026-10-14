@@ -15,7 +15,7 @@
 
 *Memory explicit, behavior predictable.*
 
-🛠️ ![Technical Implementation](MANIFEST.md)
+🌐️ ![WIKI](https://github.com/florianfoz/tolza.wiki)
 
 </div>
 
@@ -26,8 +26,6 @@ It targets domains where control over memory, data access, and execution costs i
 game engines, simulation, embedded systems, runtimes, and deterministic backends.
 
 Tolza deliberately avoids implicit behavior in favor of clarity, predictability, and compile-time guarantees.
-
-> For technical implementation details, see the ![MANIFEST](MANIFEST.md)
 
 > For VSCode plugin, see [here](https://github.com/TheProgrammare/Tolza-VScode-Plugin)
 
