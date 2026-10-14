@@ -15,7 +15,7 @@
 
 *Memory explicit, behavior predictable.*
 
-🌐️ ![WIKI](https://github.com/florianfoz/tolza.wiki)
+🌐️ ![WIKI](https://github.com/florianfoz/tolza/wiki)
 
 </div>
 
