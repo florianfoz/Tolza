@@ -1,4 +1,4 @@
-#include "rule.hpp"
+#include "type/rule.hpp"
 
 #include "ast/data.hpp"
 #include "ast/tool.hpp"

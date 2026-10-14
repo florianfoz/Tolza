@@ -5,6 +5,7 @@
 #include "compiler/compilation_unit.hpp"
 #include "compiler/compiler.hpp"
 #include "compiler/file_info.hpp"
+#include "debug/test_assert.hpp"
 #include "id/base.hpp"
 #include "id/cuid.hpp"
 #include "id/modid.hpp"
@@ -213,7 +214,7 @@ std::pair<module::ID, definition::ID> module::resolve_definition_from_reexport(I
 
 module::ID module::resolve_module_path(ID ctx, const std::vector<std::string>& path, ast::EPathAnchor anchor) noexcept
 {
-  assert(!path.empty());
+  ASSERT_NODE(!path.empty(), ctx.node(), "The path is empty");
 
   ctx = resolve_anchor(ctx, anchor);
 
@@ -227,7 +228,7 @@ module::ID module::resolve_module_path(ID ctx, const std::vector<std::string>& p
 definition::ID module::resolve_path_symbol(module::ID ctx, const std::vector<std::string>& path,
                                            ast::EPathAnchor anchor, const std::string& sym_name) noexcept
 {
-  assert(!path.empty());
+  ASSERT_NODE(!path.empty(), ctx.node(), "The path is empty");
 
   ctx = resolve_anchor(ctx, anchor);
 

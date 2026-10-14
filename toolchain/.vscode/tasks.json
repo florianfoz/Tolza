@@ -2,66 +2,14 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Clear Console",
-            "type": "shell",
-            "command": "clear"
-        },
-        {
-            "label": "Configure Debug",
-            "dependsOn": "Clear Console",
-            "type": "shell",
-            "command": "cmake",
-            "args": [
-                "--preset",
-                "debug"
-            ],
-            "problemMatcher": []
-        },
-        {
-            "label": "Configure Release",
-            "dependsOn": "Clear Console",
-            "type": "shell",
-            "command": "cmake",
-            "args": [
-                "--preset",
-                "release"
-            ],
-            "problemMatcher": []
-        },
-        {
-            "label": "build-debug",
-            "dependsOn": "Configure Debug",
-            "type": "shell",
-            "command": "time",
-            "args": [
-                "ninja",
-                "-j4"
-            ],
-            "options": {
-                "cwd": "${workspaceFolder}/build/debug"
-            },
-            "problemMatcher": []
-        },
-        {
-            "label": "build-release",
-            "dependsOn": "Configure Release",
-            "type": "shell",
-            "command": "time",
-            "args": [
-                "ninja",
-                "-j4"
-            ],
-            "options": {
-                "cwd": "${workspaceFolder}/build/release"
-            },
-            "problemMatcher": []
-        },
-        {
-            "label": "Tolza Install",
-            "dependsOn": "build-release",
-            "type": "shell",
-            "command": "cmake --install build/release",
-            "problemMatcher": []
+            "type": "cmake",
+            "label": "CMake: Build",
+            "command": "build",
+            "preset": "${command:cmake.activeBuildPresetName}",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
         }
     ]
 }

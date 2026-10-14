@@ -8,6 +8,7 @@
 #include "ast/node/declaration_sfm.hpp"
 #include "ast/node/expression.hpp"
 #include "ast/node/literal.hpp"
+#include "debug/test_assert.hpp"
 #include "id/base.hpp"
 #include "id/nodeid.hpp"
 #include "id/typeid.hpp"
@@ -316,7 +317,7 @@ ast::EVisibility ast::get_decl_visibility(ast::ID nodeid) noexcept
     case_n(SFM_View);
     case_n(SFM_Form);
     case_n(SFM_Rule);
-  default: assert(false && "Must be used on declaration node with a visibility");
+  default: ASSERT_NODE(false, nodeid, "Must be used on declaration node with a visibility");
   }
 
 #undef case_n
@@ -336,7 +337,7 @@ type::ID ast::get_decl_type(ast::ID nodeid) noexcept
     case_n(Local_Binding)->type;
     case_n(Local_Variable)->type;
     case_n(Local_Capability)->type;
-  default: assert(false && "Must be used on named node or with alias");
+  default: ASSERT_NODE(false, nodeid, "Must be used on named node or with alias");
   }
 
 #undef case_n
@@ -405,13 +406,13 @@ const type::Prototype* ast::get_prototype(ID id) noexcept
 #define if_get_proto(kind)                                                                                             \
   if (const auto* ptr = id.as<ast::kind>()) return ptr->prototype.as<type::Prototype>();
 
-  assert(id && "Invalid id");
+  ASSERT_NODE(bool(id), id, "Invalid id");
   if_get_proto(Global_Function);
   if_get_proto(SFM_Rule);
   if_get_proto(Global_Extend_Fn);
   if_get_proto(Local_Lambda);
 
-  assert(false && "No prototyped node");
+  ASSERT_NODE(false, id, "No prototyped node");
 
   return NO_ID;
 

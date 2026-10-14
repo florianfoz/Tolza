@@ -5,8 +5,8 @@
 #include "compiler/compilation_unit.hpp"
 #include "compiler/compiler.hpp"
 #include "compiler/file_info.hpp"
+#include "debug/error_output.hpp"
 #include "lexer/pool.hpp"
-#include "misc/error_output.hpp"
 #include "resolver/eval.hpp"
 #include "resolver/evaluable.hpp"
 

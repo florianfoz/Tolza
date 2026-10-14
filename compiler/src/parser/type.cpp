@@ -127,7 +127,7 @@ type::ID parser::Parser_Type::primitive(const type::Qualifier& qualifier)
     return parser_type_factory.make_string(txt, dec);
   }
 
-  common::compiler::DEBUG_TOLZA_ICE("bad token interpreted as type before primitive parsing");
+  assert(false && "bad token interpreted as type before primitive parsing");
 
   return NO_ID;
 }

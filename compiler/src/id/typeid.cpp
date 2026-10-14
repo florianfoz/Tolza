@@ -4,6 +4,7 @@
 #include "compiler/compiler.hpp"
 #include "id/defid.hpp"
 #include "pool/node_to_inf.hpp"
+#include "type/dumper.hpp"
 #include "type/pool.hpp"
 #include "type/type.hpp"
 
@@ -45,6 +46,11 @@ bool type::ID::is() const noexcept
 {
   assert(*this && "Must be valid id");
   return cu().get().types->get(*this).kind == T::static_kind;
+}
+
+std::string type::ID::dump() const noexcept
+{
+  return type::dump(*this);
 }
 
 

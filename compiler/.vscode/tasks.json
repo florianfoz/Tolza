@@ -2,94 +2,14 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Clear Console",
-            "type": "shell",
-            "command": "clear"
-        },
-        {
-            "label": "Configure Debug",
-            "dependsOn": "Clear Console",
-            "type": "shell",
-            "command": "cmake",
-            "args": [
-                "--preset",
-                "debug"
-            ],
-            "problemMatcher": []
-        },
-        {
-            "label": "Configure Release",
-            "dependsOn": "Clear Console",
-            "type": "shell",
-            "command": "cmake",
-            "args": [
-                "--preset",
-                "release"
-            ],
-            "problemMatcher": []
-        },
-        {
-            "label": "build-debug",
-            "dependsOn": "Configure Debug",
-            "type": "shell",
-            "command": "time",
-            "args": [
-                "ninja",
-                "-j$(nproc)"
-            ],
-            "options": {
-                "cwd": "${workspaceFolder}/build/debug"
-            },
-            "problemMatcher": []
-        },
-        {
-            "label": "build-release",
-            "dependsOn": "Configure Release",
-            "type": "shell",
-            "command": "time",
-            "args": [
-                "ninja",
-                "-j$(nproc)"
-            ],
-            "options": {
-                "cwd": "${workspaceFolder}/build/release"
-            },
-            "problemMatcher": []
-        },
-        {
-            "label": "Run Release",
-            "dependsOn": "build-release",
-            "type": "shell",
-            "command": "${workspaceFolder}/build/release/tolza-compiler",
-            "args": [
-                "build",
-                "${workspaceFolder}/../../tolza-workspace/example-project/tolza.toml"
-            ],
-            "problemMatcher": []
-        },
-        {
-            "label": "Tolza Install",
-            "dependsOn": "build-release",
-            "type": "shell",
-            "command": "cmake --install build/release",
-            "problemMatcher": []
-        },
-        {
-            "label": "init-cmake-build-trace",
-            "type": "shell",
-            "command": "cmake -S . -B build-trace -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_CXX_FLAGS=\"-ftime-trace\" -DCMAKE_CXX_STANDARD=23"
-        },
-        {
-            "label": "init-build-trace",
-            "dependsOn": "init-cmake-build-trace",
-            "type": "shell",
-            "command": "~/bin/ClangBuildAnalyzer-linux --start build-trace",
-        },
-        {
-            "label": "Build Trace",
-            "dependsOn": "init-build-trace",
-            "type": "shell",
-            "command": "cmake --build build-trace -j$(nproc) && ~/bin/ClangBuildAnalyzer-linux --stop build-trace build-trace/build-analysis.bin && clear && ~/bin/ClangBuildAnalyzer-linux --analyze build-trace/build-analysis.bin"
+            "type": "cmake",
+            "label": "CMake: Build",
+            "command": "build",
+            "preset": "${command:cmake.activeBuildPresetName}",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
         }
     ]
 }

@@ -15,6 +15,7 @@
 #include "ast/tool.hpp"
 #include "compiler/compilation_unit.hpp"
 #include "compiler/compiler.hpp"
+#include "debug/test_assert.hpp"
 #include "id/base.hpp"
 #include "id/defid.hpp"
 #include "id/nodeid.hpp"
@@ -30,6 +31,7 @@
 #include <cassert>
 #include <cstring>
 #include <format>
+#include <print>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -39,7 +41,7 @@
 
 void resolver::Symbol::add_resolution(ast::ID nodeid, definition::ID defid)
 {
-  assert(defid && "invalid symbol id");
+  ASSERT_NODE(bool(defid), nodeid, "invalid symbol id");
 
   COMPILER.resolved.add(nodeid, defid);
 }
@@ -48,7 +50,7 @@ void resolver::Symbol::add_resolution(ast::ID nodeid, definition::ID defid)
 definition::ID resolver::Symbol::resolve_id_sym(scope::ID ctx, ast::ID nodeid, const std::string& id,
                                                 bool is_silent_error)
 {
-  assert(!id.empty());
+  ASSERT_NODE(!id.empty(), nodeid, "Empty identifier");
 
   if (auto sym = scope::find_in_chain_scope(ctx, id)) {
     sym_resolved_count++;
@@ -62,7 +64,7 @@ definition::ID resolver::Symbol::resolve_path_sym(module::ID ctx, ast::ID nodeid
                                                   const std::vector<std::string>& path, ast::EPathAnchor anchor,
                                                   bool is_silent_error)
 {
-  assert(!path.empty());
+  ASSERT_NODE(!path.empty(), nodeid, "Empty path");
 
   const auto defid = module::resolve_path_symbol(ctx, path, anchor, id);
   if (defid) return defid;
@@ -116,6 +118,7 @@ void resolver::Symbol::resolve_node(ast::ID nodeid)
     resolve(Statement_Match);
     resolve(Statement_Match_Case);
     resolve(Operation_Cast_As);
+    resolve(Operation_Mem);
     ignore(Import);
     ignore(Global_Alias_Type);
     ignore(Global_Alias_Module);
@@ -127,7 +130,8 @@ void resolver::Symbol::resolve_node(ast::ID nodeid)
     ignore(Literal_Cune);
     ignore(Literal_Rune);
     ignore(Literal_Text_Pure);
-  default: assert(false && "Unhandled node resolution");
+  default:
+    ASSERT_NODE(false, nodeid, std::format("Unhandled node resolution ({})", ast::ENodeKind_to_str(nodeid.kind())));
   }
 
 #undef resolve
@@ -310,7 +314,7 @@ void resolver::Symbol::resolve_Expression_Member_Access(ast::Expression_Member_A
 
   if (const auto* facet = n.left_expression.def().node().as<ast::SFM_Facet>()) {
     for (auto field_id : facet->fields) {
-      assert(field_id.is<ast::SFM_Facet_Field>());
+      ASSERT_NODE(field_id.is<ast::SFM_Facet_Field>(), field_id, "Expected node kind (SFM_Facet_Field)");
       const auto* field = field_id.as<ast::SFM_Facet_Field>();
 
       if (auto* id = n.right_identifier.as<ast::Symbol_Id>()) {
@@ -432,9 +436,17 @@ void resolver::Symbol::resolve_Statement_Match_Case(ast::Statement_Match_Case& n
   resolve_node(n.codeblock);
 }
 
+
 void resolver::Symbol::resolve_Operation_Cast_As(ast::Operation_Cast_As& n)
 {
   RESOLUTION_GUARD
 
   resolve_node(n.expression);
+}
+
+void resolver::Symbol::resolve_Operation_Mem(ast::Operation_Mem& n)
+{
+  RESOLUTION_GUARD
+
+  resolve_node(n.target);
 }

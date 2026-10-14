@@ -1,11 +1,13 @@
 #include "id/nodeid.hpp"
 
 #include "ast/data.hpp"
+#include "ast/dumper.hpp"
 #include "ast/node/base.hpp"
 #include "ast/pool.hpp"
 #include "ast/tool.hpp"
 #include "compiler/compilation_unit.hpp"
 #include "compiler/compiler.hpp"
+#include "debug/test_assert.hpp"
 #include "id/base.hpp"
 #include "id/defid.hpp"
 #include "id/modid.hpp"
@@ -92,7 +94,7 @@ bool ast::ID::is_rvalue() const noexcept
 
   const auto k = kind();
 
-  assert(k != ENodeKind::NONE && "invalid node facial kind");
+  ASSERT_NODE(k != ENodeKind::NONE, *this, "invalid node facial kind");
   if (k == ENodeKind::Expression_Table_Access) return false;
   if (k >= ENodeKind::Literal_Boolean && k <= ENodeKind::Literal_Record) return true;
   if (k >= ENodeKind::Expression_If_Ternary && k <= ENodeKind::Expression_New_Ptr) return true;
@@ -138,6 +140,11 @@ const semantic::Metadata* ast::ID::sem() const noexcept
 {
   assert(*this && "Must be valid id");
   return COMPILER.semantic_metadata.get_metadata(*this);
+}
+
+std::string ast::ID::dump() const noexcept
+{
+  return ast::dump(*this);
 }
 
 /*

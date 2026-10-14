@@ -30,7 +30,7 @@ scope::Scope scope::Scope::make_from_module(module::ID modid, ast::ID nodeid) no
 scope::Scope scope::Scope::make_from_node(ast::ID nodeid) noexcept
 {
   return {
-      .debug_name = ast::dump(nodeid),
+      .debug_name = nodeid.dump(),
       .nodeid     = nodeid,
   };
 }

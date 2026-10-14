@@ -8,7 +8,7 @@
 #include "pipeline/configurator.hpp"
 #include "pipeline/pipeline.hpp"
 
-#include <CLIUtils/CLI11.hpp>
+#include <CLI/CLI.hpp>
 #include <common/compiler_options.hpp>
 #include <common/environment.hpp>
 #include <common/fileutils.hpp>

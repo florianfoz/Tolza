@@ -5,6 +5,7 @@
 #include "ast/node/declaration_sfm.hpp"
 #include "ast/tool.hpp"
 #include "compiler/compiler.hpp"
+#include "debug/test_assert.hpp"
 #include "id/base.hpp"
 #include "id/cuid.hpp"
 #include "lexer/data.hpp"
@@ -116,7 +117,7 @@ type::ID type::Factory::make_prototype(const std::vector<type::Prototype_Param>&
 }
 type::ID type::Factory::make_enum(const std::vector<type::ID>& variants, definition::ID sym, Qualifier qualifier)
 {
-  assert(!variants.empty() && "Illegal empty enum");
+  ASSERT_NODE(!variants.empty(), sym.node(), "Illegal empty enum");
 
   Enum t;
   t.header.qualifier = qualifier;
@@ -127,7 +128,7 @@ type::ID type::Factory::make_enum(const std::vector<type::ID>& variants, definit
 }
 type::ID type::Factory::make_flag(size_t size, definition::ID sym, Qualifier qualifier)
 {
-  assert(size != 0 && "Illegal empty flag");
+  ASSERT_NODE(size != 0, sym.node(), "Illegal empty flag");
 
   Flag t;
   t.header.qualifier = qualifier;
@@ -138,7 +139,7 @@ type::ID type::Factory::make_flag(size_t size, definition::ID sym, Qualifier qua
 }
 type::ID type::Factory::make_union(const std::vector<type::ID>& variants, definition::ID sym, Qualifier qualifier)
 {
-  assert(!variants.empty() && "Illegal empty union");
+  ASSERT_NODE(!variants.empty(), sym.node(), "Illegal empty union");
 
   Union t;
   t.header.qualifier = qualifier;
@@ -158,7 +159,7 @@ type::ID type::Factory::make_facet(const std::vector<type::ID>& fields, definiti
 }
 type::ID type::Factory::make_view(const std::vector<type::ID>& facets, definition::ID sym, Qualifier qualifier)
 {
-  assert(!facets.empty() && "Illegal empty view");
+  ASSERT_NODE(!facets.empty(), sym.node(), "Illegal empty view");
 
   View t;
   t.header.qualifier = qualifier;
@@ -188,7 +189,7 @@ type::ID type::Factory::make_forward_identifier(std::string_view name, Qualifier
 }
 type::ID type::Factory::make_identifier(std::string_view name, ast::ID nodeid, definition::ID sym, Qualifier qualifier)
 {
-  assert(!name.empty() && "Illegal empty identifier name");
+  ASSERT_NODE(!name.empty(), sym.node(), "Illegal empty identifier name");
 
   auto it = arena.resolved_identifiers.find(std::string(name));
   if (it != arena.resolved_identifiers.end()) return it->second;

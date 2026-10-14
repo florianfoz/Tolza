@@ -4,6 +4,7 @@
 #include "compiler/compilation_unit.hpp"
 #include "compiler/compiler.hpp"
 #include "compiler/file_info.hpp"
+#include "debug/test_assert.hpp"
 #include "ffi/manager.hpp"
 #include "id/cuid.hpp"
 #include "id/nodeid.hpp"
@@ -48,10 +49,10 @@ bool module_resolver::resolve_modules(std::unordered_set<cu::ID, cu::ID::Hash>& 
       // if (modid) continue;
 
       const auto* imp = id.as<ast::Import>();
-      assert(imp);
+      ASSERT_NODE(imp, id, "Expected node kind (Import)");
 
       const auto* regex = imp->regex.as<ast::Path_Regex>();
-      assert(regex);
+      ASSERT_NODE(regex, imp->regex, "Expected node kind (Path_Regex)");
 
       // binding generation query
       if (regex->source == cu::EFileSource::bind) (void)generate_bind(regex->path, imp->alias);

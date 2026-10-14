@@ -15,6 +15,7 @@
 #include "ast/tool.hpp"
 #include "compiler/compilation_unit.hpp"
 #include "compiler/compiler.hpp"
+#include "debug/test_assert.hpp"
 #include "id/typeid.hpp"
 #include "nexus/forward.hpp"
 #include "pool/node_resolved.hpp"
@@ -44,7 +45,7 @@ compiler::EPhase resolver::Inference::current_EPhase() const
 void resolver::Inference::Inference::add_inference(ast::ID nodeid, type::ID type)
 {
   assert(nodeid && "Invalid node");
-  assert(type && "Invalid type");
+  ASSERT_NODE(bool(type), nodeid, "Invalid type");
 
   const auto canon = type.canonical();
   COMPILER.inference.add(nodeid, canon);
@@ -124,7 +125,8 @@ void resolver::Inference::Inference::resolve_node(ast::ID nodeid, bool mandatory
   case ast::ENodeKind::Import:
   case ast::ENodeKind::Path_Regex:
   case ast::ENodeKind::Global_Reexport: break;
-  default:                              assert(false && "Unhandled node resolution");
+  default:
+    ASSERT_NODE(false, nodeid, std::format("Unhandled node resolution ({})", ast::ENodeKind_to_str(nodeid.kind())));
   }
 
 #undef resolve
@@ -146,36 +148,36 @@ void resolver::Inference::ensure_primitive_literal(ast::ID lit, type::ID ty_infe
       switch (inf_primitive->primitive) {
       case type::EPrimitiveTypeKind::_cune: ptr->text_type = type::ETextType::_cune; break;
       case type::EPrimitiveTypeKind::_rune: ptr->text_type = type::ETextType::_rune; break;
-      default:                              assert(false && "Illegal type inference reached");
+      default:                              ASSERT_NODE(false, lit, "Illegal type inference reached");
       }
     } else {
-      assert(false && "Illegal type inference reached");
+      ASSERT_NODE(false, lit, "Illegal type inference reached");
     }
   } else if (const auto* inf_text = ty_inference.as<type::String>()) {
     if (auto* ptr = lit.as<ast::Literal_Text_Pure>()) {
-      assert(inf_text->kind != type::ETextType::NONE);
+      ASSERT_NODE(inf_text->kind != type::ETextType::NONE, lit, "");
       ptr->text_type = inf_text->kind;
     } else {
-      assert(false && "Illegal type inference reached");
+      ASSERT_NODE(false, lit, "Illegal type inference reached");
     }
 
   } else if (const auto* inf_tbl = ty_inference.as<type::Array>()) {
     if (auto* ptr = lit.as<ast::Literal_Table>()) {
       ptr->type = inf_tbl->tyid();
     } else
-      assert(false && "Illegal type inference reached");
+      ASSERT_NODE(false, lit, "Illegal type inference reached");
   } else if (const auto* inf_tbl = ty_inference.as<type::Buffer>()) {
     if (auto* ptr = lit.as<ast::Literal_Table>()) {
       ptr->type = inf_tbl->tyid();
     } else
-      assert(false && "Illegal type inference reached");
+      ASSERT_NODE(false, lit, "Illegal type inference reached");
   } else if (const auto* inf_tbl = ty_inference.as<type::Slice>()) {
     if (auto* ptr = lit.as<ast::Literal_Table>()) {
       ptr->type = inf_tbl->tyid();
     } else
-      assert(false && "Illegal type inference reached");
+      ASSERT_NODE(false, lit, "Illegal type inference reached");
   } else {
-    assert(false && "Illegal type inference reached");
+    ASSERT_NODE(false, lit, "Illegal type inference reached");
   }
 }
 
@@ -240,11 +242,12 @@ void resolver::Inference::ensure_expression_resolution(ast::ID expr_nodeid, type
       } else {
         if (!expr_nodeid.type()) {
           add_error(230, expr_nodeid.get(),
-                    std::format("Expression type undefined, inference tried on \"{}\".", dump(ty_inference)), "");
+                    std::format("Expression type undefined, inference tried on \"{}\".", ty_inference.dump()), "");
         } else if (!type::rule::can_implicit_cast(expr_nodeid.type(), ty_inference)) {
           add_error(
               230, expr_nodeid.get(),
-              std::format(R"(Illegal type inference "{}" as "{}".)", dump(expr_nodeid.type()), dump(ty_inference)), "");
+              std::format(R"(Illegal type inference "{}" as "{}".)", expr_nodeid.type().dump(), ty_inference.dump()),
+              "");
         }
       }
     }
@@ -293,7 +296,7 @@ void resolver::Inference::resolve_Symbol_Id(const ast::Symbol_Id& n)
   INFERENCE_GUARD
   auto def_node = n.nodeid().def().node();
   resolve_node(def_node);
-  assert(ast::ENodeKind_is_declaration(def_node.kind()) && "the node must be a declaration");
+  ASSERT_NODE(ast::ENodeKind_is_declaration(def_node.kind()), n.nodeid(), "the node must be a declaration");
   add_inference(n.nodeid(), def_node.type());
 }
 void resolver::Inference::resolve_Symbol_Qualified(const ast::Symbol_Qualified& n)
@@ -302,7 +305,7 @@ void resolver::Inference::resolve_Symbol_Qualified(const ast::Symbol_Qualified& 
 
   auto def_node = n.nodeid().def().node();
   resolve_node(def_node);
-  assert(ast::ENodeKind_is_declaration(def_node.kind()) && "the node must be a declaration");
+  ASSERT_NODE(ast::ENodeKind_is_declaration(def_node.kind()), n.nodeid(), "the node must be a declaration");
   add_inference(n.nodeid(), def_node.type());
 }
 void resolver::Inference::resolve_Symbol_Type(const ast::Symbol_Type& n)
@@ -311,7 +314,7 @@ void resolver::Inference::resolve_Symbol_Type(const ast::Symbol_Type& n)
 
   auto def_node = n.nodeid().def().node();
   resolve_node(def_node);
-  assert(ast::ENodeKind_is_declaration(def_node.kind()) && "the node must be a declaration");
+  ASSERT_NODE(ast::ENodeKind_is_declaration(def_node.kind()), n.nodeid(), "the node must be a declaration");
   add_inference(n.nodeid(), def_node.type());
 }
 
@@ -339,7 +342,7 @@ void resolver::Inference::resolve_Global_Variable(const ast::Global_Variable& n)
   INFERENCE_GUARD
 
   if (!n.type) {
-    assert(n.expression && "Expression must be valid to infer type");
+    ASSERT_NODE(bool(n.expression), n.nodeid(), "Expression must be valid to infer type");
     resolve_node(n.expression);
     add_inference(n.nodeid(), n.expression.type());
     return;
@@ -503,7 +506,7 @@ void resolver::Inference::resolve_Expression_Member_Access(const ast::Expression
 err:
   add_error_two_nodes(892, n.left_expression.get(), n.right_identifier.get(),
                       std::format(R"(Invalid member access "{}" on type "{}")", ast::get_decl_name(n.right_identifier),
-                                  type::dump(n.left_expression.type())),
+                                  n.left_expression.type().dump()),
                       "");
 }
 void resolver::Inference::resolve_Expression_Self(const ast::Expression_Self& n)
@@ -535,15 +538,15 @@ void resolver::Inference::resolve_Expression_Invocation(const ast::Expression_In
   INFERENCE_GUARD
 
   resolve_node(n.callee);
-  assert(n.callee.type());
+  ASSERT_NODE(bool(n.callee.type()), n.callee, "The call must have a valid callee");
   const auto* proto = ast::get_prototype(n.callee.def().node());
-  assert(proto);
+  ASSERT_NODE(proto, n.callee, "Prototype not found");
 
   for (size_t i = 0; i < proto->params.size(); i++) {
     if (n.arguments.size() <= i) break;
     const auto& param = proto->params[i];
     const auto* arg   = n.arguments[i].as<ast::Expression_Invocation_Arg>();
-    assert(arg);
+    ASSERT_NODE(arg, n.arguments[i], "Expected node kind (Expression_Invocation_Arg)");
     ensure_expression_resolution(arg->expression, param.type);
     add_inference(arg->nodeid(), param.type);
   }
@@ -572,7 +575,7 @@ void resolver::Inference::resolve_Expression_Table_Access(const ast::Expression_
   resolve_node(n.target);
   resolve_node(n.selector);
 
-  assert(n.target.type());
+  ASSERT_NODE(bool(n.target.type()), n.nodeid(), "Target type invalid");
 
   type::ID tyid;
 
@@ -588,7 +591,7 @@ void resolver::Inference::resolve_Expression_Table_Access(const ast::Expression_
     goto err;
   }
 
-  assert(tyid);
+  ASSERT_NODE(bool(tyid), n.nodeid(), "tyid invalid");
 
   add_inference(n.nodeid(), tyid);
 
@@ -599,7 +602,7 @@ err:
       511, n.header,
       std::format(
           R"(invalid table access "[]" operation, the type "{}" is not a table or dosen't extend to this operation)",
-          dump(n.target.type())),
+          n.target.type().dump()),
       "");
 }
 
@@ -621,7 +624,7 @@ void resolver::Inference::resolve_Statement_For(const ast::Statement_For& n)
   if (const auto* ptr = n.expression.as<ast::Literal_Range>()) {
     add_inference(n.index, ptr->start.type());
   } else if (!type::ETypeKind_is_iterable(n.expression.type().kind()))
-    add_error(272, n.expression.get(), std::format("The type \"{}\" is not iterable.", dump(n.expression.type())), "");
+    add_error(272, n.expression.get(), std::format("The type \"{}\" is not iterable.", n.expression.type().dump()), "");
   else {
     if (n.index) add_inference(n.index, type::get_inner(n.expression.type()));
     for (auto it : n.items) add_inference(it, type::get_inner(n.expression.type()));
@@ -714,7 +717,9 @@ void resolver::Inference::resolve_Literal_Integral(ast::Literal_Integral& n)
   case type::EPrimitiveTypeKind::_u32:   add_inference(n.nodeid(), type::TYPEID_u32); break;
   case type::EPrimitiveTypeKind::_u64:   add_inference(n.nodeid(), type::TYPEID_u64); break;
   case type::EPrimitiveTypeKind::_u128:  add_inference(n.nodeid(), type::TYPEID_u128); break;
-  default:                               assert(false);
+  default:
+    ASSERT_NODE(false, n.nodeid(),
+                std::format("Invalid primitive type kind ({})", type::EPrimitiveTypeKind_to_str(n.type)));
   }
 }
 void resolver::Inference::resolve_Literal_Floating_Point(ast::Literal_Floating_Point& n)
@@ -729,7 +734,9 @@ void resolver::Inference::resolve_Literal_Floating_Point(ast::Literal_Floating_P
   case type::EPrimitiveTypeKind::_f64:   add_inference(n.nodeid(), type::TYPEID_f64); break;
   case type::EPrimitiveTypeKind::_f80:   add_inference(n.nodeid(), type::TYPEID_f80); break;
   case type::EPrimitiveTypeKind::_f128:  add_inference(n.nodeid(), type::TYPEID_f128); break;
-  default:                               assert(false);
+  default:
+    ASSERT_NODE(false, n.nodeid(),
+                std::format("Invalid primitive type kind ({})", type::EPrimitiveTypeKind_to_str(n.type)));
   }
 }
 void resolver::Inference::resolve_Literal_Fixed_Point(ast::Literal_Fixed_Point& n)
@@ -746,7 +753,9 @@ void resolver::Inference::resolve_Literal_Fixed_Point(ast::Literal_Fixed_Point& 
   case type::EPrimitiveTypeKind::_ud32:   add_inference(n.nodeid(), type::TYPEID_ud32); break;
   case type::EPrimitiveTypeKind::_ud64:   add_inference(n.nodeid(), type::TYPEID_ud64); break;
   case type::EPrimitiveTypeKind::_ud128:  add_inference(n.nodeid(), type::TYPEID_ud128); break;
-  default:                                assert(false);
+  default:
+    ASSERT_NODE(false, n.nodeid(),
+                std::format("Invalid primitive type kind ({})", type::EPrimitiveTypeKind_to_str(n.raw_type)));
   }
 }
 void resolver::Inference::resolve_Literal_Cune(const ast::Literal_Cune& n)
@@ -831,7 +840,7 @@ void resolver::Inference::resolve_Operation_Cast_As(const ast::Operation_Cast_As
 {
   INFERENCE_GUARD
 
-  assert(n.type);
+  ASSERT_NODE(bool(n.type), n.nodeid(), "Cast as don't have a valid type");
 
   ensure_expression_resolution(n.expression, n.type, true);
   if (!n.expression.is_inferred()) resolve_node(n.expression); // must have a inference even if silent error
@@ -841,7 +850,7 @@ void resolver::Inference::resolve_Operation_Cast_As(const ast::Operation_Cast_As
 
     if (!type::rule::can_explicit_cast(n.expression.type(), n.type.canonical())) {
       add_error(267, n.header,
-                std::format("Invalid explicit cast `{}` as `{}`", dump(n.expression.type()), dump(n.type)), "");
+                std::format("Invalid explicit cast `{}` as `{}`", n.expression.type().dump(), n.type.dump()), "");
     }
     break;
   }
@@ -929,8 +938,15 @@ void resolver::Inference::resolve_Operation_Mem(const ast::Operation_Mem& n)
   case ast::EOp_Mem::_val: {
     if (const auto* ptr = n.target.type().as<type::Ptr>()) {
       add_inference(n.nodeid(), ptr->inner);
-    } else
+    } else if (const auto* ptr = n.target.type().as<type::Array>()) {
+      add_inference(n.nodeid(), ptr->inner);
+    } else if (const auto* ptr = n.target.type().as<type::Buffer>()) {
+      add_inference(n.nodeid(), ptr->inner);
+    } else if (const auto* ptr = n.target.type().as<type::Slice>()) {
+      add_inference(n.nodeid(), ptr->inner);
+    } else {
       goto err_val_no_ptr;
+    }
     break;
   }
   case ast::EOp_Mem::_mut:
@@ -956,10 +972,10 @@ void resolver::Inference::resolve_Operation_Mem(const ast::Operation_Mem& n)
 
 err_val_no_ptr:
   add_error(511, n.header,
-            std::format("invalid val' operation, the type \"{}\" is not a pointer", dump(n.target.type())), "");
+            std::format("invalid val' operation, the type \"{}\" is not a pointer", n.target.type().dump()), "");
 err_del_no_ptr:
   add_error(511, n.header,
-            std::format("invalid del operation, the type \"{}\" is not a pointer", dump(n.target.type())), "");
+            std::format("invalid del operation, the type \"{}\" is not a pointer", n.target.type().dump()), "");
 err_drop_no_capa:
-  add_error(511, n.header, std::format("invalid drop operation, the item is not a borrow", dump(n.target.type())), "");
+  add_error(511, n.header, std::format("invalid drop operation, the item is not a borrow", n.target.type().dump()), "");
 }

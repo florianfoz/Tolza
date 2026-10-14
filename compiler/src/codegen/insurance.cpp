@@ -4,6 +4,7 @@
 #include "codegen/codegen.hpp"
 #include "codegen/tool.hpp"
 #include "codegen/type.hpp"
+#include "debug/test_assert.hpp"
 #include "id/nodeid.hpp"
 #include "id/typeid.hpp"
 #include "type/type.hpp"
@@ -38,7 +39,7 @@ llvm::Value* codegen::Insurance::ensure_rvalue(ast::ID expr, std::string_view na
   // if (expr.is_rvalue()) return codegen_node(expr);
 
   auto* v = res.codegen_node(expr);
-  assert(v);
+  ASSERT_NODE(v, expr, "Impossible to generate expression");
   v->setName(name);
 
   auto* ty = v->getType();
@@ -56,7 +57,7 @@ llvm::Value* codegen::Insurance::ensure_lvalue(ast::ID expr, bool is_silent_erro
   // if (expr.is_lvalue()) return codegen_node(expr);
 
   auto* v = res.codegen_node(expr);
-  assert(v);
+  ASSERT_NODE(v, expr, "Impossible to generate expression");
 
   // mut be llvm ptr
   if (v->getType()->isPointerTy()) return v;
@@ -118,7 +119,7 @@ llvm::Value* codegen::Insurance::ensure_init_global_value(ast::ID expr, bool is_
   if (auto* ptr = expr.as<ast::Literal_Table>()) {
     auto* v  = res.codegen_Literal_Table(*ptr);
     auto* ty = expr.type().as<type::Array>();
-    assert(ty);
+    ASSERT_NODE(ty, expr, "Expression is not a array type");
     return res.tools.init_global_array(*ty, v, false, is_const);
   }
 

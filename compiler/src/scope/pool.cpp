@@ -60,18 +60,18 @@ scope::Graph::Graph(cu::ID _cuid)
   return new_id;
 }
 
-std::vector<scope::ID>& scope::get_children(ID id) noexcept
+std::vector<scope::ID>& scope::get_children(ID scpid) noexcept
 {
   static std::vector<scope::ID> empty;
 
-  assert(id && "Must be valid id");
+  assert(scpid && "Must be valid id");
 
-  assert(id.cu() && "Must be attached to a valid script");
+  assert(scpid.cu() && "Must be attached to a valid script");
 
-  if (id.cu()) {
-    auto* graph = id.cu().get().scopes;
+  if (scpid.cu()) {
+    auto* graph = scpid.cu().get().scopes;
 
-    auto it = graph->children.find(id);
+    auto it = graph->children.find(scpid);
     if (it == graph->children.end()) return empty;
     return it->second;
   }

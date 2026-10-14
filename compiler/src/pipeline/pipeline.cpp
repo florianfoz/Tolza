@@ -1,4 +1,4 @@
-#include "pipeline.hpp"
+#include "pipeline/pipeline.hpp"
 
 #include <algorithm>
 #include <cassert>

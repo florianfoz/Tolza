@@ -4,9 +4,9 @@
 #include "codegen/eval.hpp"
 #include "compiler/compilation_unit.hpp"
 #include "compiler/compiler.hpp"
+#include "debug/error_output.hpp"
 #include "id/cuid.hpp"
 #include "id/typeid.hpp"
-#include "misc/error_output.hpp"
 #include "pool/node_to_inf.hpp"
 #include "type/data.hpp"
 #include "type/pool.hpp"
@@ -350,7 +350,8 @@ llvm::Type* codegen::Codegen_Type::codegen_Parameter(const type::Prototype_Param
   case ast::EPassMode::mut: {
     return pty->getPointerTo();
   }
-  case ast::EPassMode::copy: {
+  case ast::EPassMode::_const:
+  case ast::EPassMode::copy:   {
     if (pty->isSingleValueType()) return pty;
     return pty->getPointerTo();
   }

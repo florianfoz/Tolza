@@ -13,7 +13,7 @@
 #include "codegen/type.hpp"
 #include "compiler/compilation_unit.hpp"
 #include "compiler/compiler.hpp"
-#include "misc/error_output.hpp"
+#include "debug/error_output.hpp"
 #include "type/data.hpp"
 
 #include <algorithm>

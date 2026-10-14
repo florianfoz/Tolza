@@ -1,9 +1,10 @@
-#include "compiler.hpp"
+#include "compiler/compiler.hpp"
 
 #include "compiler/io.hpp"
+#include "compiler/parser_command.hpp"
+#include "debug/error_output.hpp"
+#include "debug/notification/notification.hpp"
 #include "id/cuid.hpp"
-#include "misc/error_output.hpp"
-#include "misc/notification/notification.hpp"
 #include "module/pool.hpp"
 #include "nexus/forward.hpp"
 #include "pipeline/codegen.hpp"
@@ -19,17 +20,16 @@
 #include "pool/node_unresolved.hpp"
 #include "type/pool.hpp"
 
+#include <CLI/CLI.hpp>
 #include <algorithm>
+#include <cassert>
 #include <chrono>
-#include <common/common.hpp>
 #include <common/compiler_options.hpp>
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
 #include <filesystem>
 #include <format>
-#include <llvm/IR/LLVMContext.h>
-#include <llvm/Target/TargetMachine.h>
 #include <print>
 #include <ratio>
 #include <string>
@@ -38,37 +38,6 @@
 
 namespace fs = std::filesystem;
 
-void compiler::Compiler::add_error(const Error_Diagnostic& error)
-{
-  auto it = std::ranges::find_if(errors, [&](const auto& elem) -> bool { return elem.first == error.elem_first.cuid; });
-
-  if (it != errors.end()) {
-    auto& vec = it->second;
-    vec.emplace_back(error);
-  } else {
-    errors.emplace_back(error.elem_first.cuid, std::vector({error}));
-  }
-
-
-  if (OPTIONS.diagnostic.error == common::compiler::EErrorMode::fail_fatal) {
-    print_errors();
-    if (!OPTIONS.is_check_mode) {
-      auto end      = std::chrono::high_resolution_clock::now();
-      auto tp       = std::chrono::system_clock::time_point(std::chrono::milliseconds(start_compilation_time));
-      auto total_ms = static_cast<long long>(std::chrono::duration<double, std::milli>(end - tp).count());
-
-      const auto m  = total_ms / 60'000;
-      const auto s  = (total_ms / 1'000) % 60;
-      const auto ms = total_ms % 1'000;
-
-
-      IO::println(stderr, IO_PASS::NONE, "Compilation failed - {}m {}s {}ms", m, s, ms);
-      notification::notify("Tolza-Compiler", std::format("Compilation failed - {}m {}s {}ms", m, s, ms), false);
-    }
-    std::exit(1);
-  }
-}
-
 
 compiler::Compiler::Compiler()
   : unresolved(*new unresolved::Arena())
@@ -76,10 +45,25 @@ compiler::Compiler::Compiler()
   , inference(*new inference::Arena())
   , semantic_metadata(*new semantic::Arena())
   , evaluated(*new evaluated::Arena())
+
 {
   module::initialization();
   type::initialization();
 }
+
+
+int compiler::Compiler::run_tolza(int argc, const char* argv[])
+{
+  CLI::App            app{std::format("Tolza compiler ({})", SOFTWARE_VERSION), SOFTWARE_NAME};
+  compiler::Commander commander(app, argc, argv);
+
+  CLI11_PARSE(app, argc, argv);
+
+  if (run_requested) return COMPILER.start_compilation() ? 0 : 1;
+
+  return 0;
+}
+
 
 bool compiler::Compiler::start_compilation()
 {
@@ -232,6 +216,7 @@ void compiler::Compiler::print_errors() const
     for (size_t i = 0; i < errs.size(); i++) {
       const auto err = errs[i];
       std::print(stderr, "{}", err.print_error());
+
       if (i != errs.size() - 1 && OPTIONS.diagnostic.out_format == common::compiler::EDiagnosticFormat::json)
         std::println(stderr, ",");
     }
@@ -245,9 +230,42 @@ void compiler::Compiler::print_errors() const
 }
 
 
+void compiler::Compiler::add_error(const Error_Diagnostic& error)
+{
+  auto it = std::ranges::find_if(errors, [&](const auto& elem) -> bool { return elem.first == error.elem_first.cuid; });
+
+  if (it != errors.end()) {
+    auto& vec = it->second;
+    vec.emplace_back(error);
+  } else {
+    errors.emplace_back(error.elem_first.cuid, std::vector({error}));
+  }
+
+
+  if (OPTIONS.diagnostic.error == common::compiler::EErrorMode::fail_fatal) {
+    print_errors();
+    if (!OPTIONS.is_check_mode) {
+      auto end      = std::chrono::high_resolution_clock::now();
+      auto tp       = std::chrono::system_clock::time_point(std::chrono::milliseconds(start_compilation_time));
+      auto total_ms = static_cast<long long>(std::chrono::duration<double, std::milli>(end - tp).count());
+
+      const auto m  = total_ms / 60'000;
+      const auto s  = (total_ms / 1'000) % 60;
+      const auto ms = total_ms % 1'000;
+
+
+      IO::println(stderr, IO_PASS::NONE, "Compilation failed - {}m {}s {}ms", m, s, ms);
+      notification::notify("Tolza-Compiler", std::format("Compilation failed - {}m {}s {}ms", m, s, ms), false);
+    }
+    std::exit(1);
+  }
+}
+
+
 std::string compiler::Phase_to_code(EPhase phase)
 {
   switch (phase) {
+  case compiler::EPhase::NONE:      assert("Invalid phase");
   case EPhase::filesystem:          return "FSYS";
   case EPhase::lexer:               return "LEXE";
   case EPhase::preprosessor:        return "PREP";

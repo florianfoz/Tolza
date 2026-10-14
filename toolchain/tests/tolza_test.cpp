@@ -1,0 +1,6 @@
+#include <cassert>
+
+
+int main(int argc, const char* argv[])
+{
+}

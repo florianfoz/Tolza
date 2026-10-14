@@ -11,7 +11,8 @@
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
         "CMAKE_C_COMPILER": "/usr/lib/llvm-19/bin/clang",
         "CMAKE_CXX_COMPILER": "/usr/lib/llvm-19/bin/clang++",
-        "CMAKE_INSTALL_PREFIX": "$env{HOME}/.local"
+        "CMAKE_INSTALL_PREFIX": "$env{HOME}/.local",
+        "CMAKE_CXX_FLAGS": "-DTOLZA_TESTS"
       }
     },
     {

@@ -1,28 +1,14 @@
-/*
- * This program include and use the marzer/tomlplusplus project
- * You can find this project at
- *
- *     https://marzer.github.io/tomlplusplus/
- *
- * Used for the ini format file reading.
- */
-
 #include "command_build.hpp"
 
 #include "toolchain/toolchain.hpp"
 
-#include <common/common.hpp>
-#include <common/compiler_options.hpp>
 #include <common/toolchain_options.hpp>
-#include <common/utils.hpp>
 #include <cstdlib>
-#include <expected>
-#include <marzer/toml++.hpp>
+#include <format>
+#include <iterator>
 #include <print>
 #include <string>
 #include <string_view>
-#include <sys/types.h>
-#include <unistd.h>
 
 #define HLOG "[tolza] "
 #define HERR "[tolza:ERROR] "

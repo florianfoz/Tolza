@@ -1,13 +1,13 @@
-#include "token_viewer.hpp"
+#include "lexer/token_viewer.hpp"
 
 #include "compiler/compilation_unit.hpp"
 #include "compiler/compiler.hpp"
 #include "compiler/file_info.hpp"
+#include "debug/error_output.hpp"
 #include "id/cuid.hpp"
 #include "id/tokid.hpp"
 #include "lexer/data.hpp"
 #include "lexer/pool.hpp"
-#include "misc/error_output.hpp"
 
 #include <cstddef>
 #include <initializer_list>

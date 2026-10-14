@@ -83,55 +83,55 @@ void ffi::AST::tolza_codegen(std::string_view dest)
   if (!reexports.empty()) {
     os << ffi::BINDER_REEXPORT_HEADER;
 
-    for (const auto* elem : reexports) os << dump(elem->nodeid());
+    for (const auto* elem : reexports) os << elem->nodeid().dump();
   }
 
   if (!imports.empty()) {
     os << ffi::BINDER_IMPORT_HEADER;
 
-    for (const auto* elem : imports) os << dump(elem->nodeid());
+    for (const auto* elem : imports) os << elem->nodeid().dump();
   }
 
   if (!typealiases.empty()) {
     os << ffi::BINDER_TYPEALIAS_HEADER;
 
-    for (const auto* elem : typealiases) os << dump(elem->nodeid());
+    for (const auto* elem : typealiases) os << elem->nodeid().dump();
   }
   if (!enums.empty()) {
     os << ffi::BINDER_ENUM_HEADER;
 
-    for (const auto* elem : enums) os << dump(elem->nodeid());
+    for (const auto* elem : enums) os << elem->nodeid().dump();
   }
   if (!facets.empty()) {
     os << ffi::BINDER_FACET_HEADER;
 
-    for (const auto* elem : facets) os << dump(elem->nodeid());
+    for (const auto* elem : facets) os << elem->nodeid().dump();
   }
   if (!unions.empty()) {
     os << ffi::BINDER_UNION_HEADER;
 
-    for (const auto* elem : unions) os << dump(elem->nodeid());
+    for (const auto* elem : unions) os << elem->nodeid().dump();
   }
   if (!globals.empty()) {
     os << ffi::BINDER_GLOBAL_HEADER;
 
-    for (const auto* elem : globals) os << dump(elem->nodeid());
+    for (const auto* elem : globals) os << elem->nodeid().dump();
   }
   if (!funcs.empty()) {
     os << ffi::BINDER_FUNCTION_HEADER;
 
-    for (const auto* elem : funcs) os << dump(elem->nodeid());
+    for (const auto* elem : funcs) os << elem->nodeid().dump();
   }
 
   if (!flags.empty()) {
     os << ffi::BINDER_FLAG_HEADER;
 
-    for (const auto* elem : flags) os << dump(elem->nodeid());
+    for (const auto* elem : flags) os << elem->nodeid().dump();
   }
   if (!entities.empty()) {
     os << ffi::BINDER_FORM_HEADER;
 
-    for (const auto* elem : entities) os << dump(elem->nodeid());
+    for (const auto* elem : entities) os << elem->nodeid().dump();
   }
 
   os << std::format("\n}} // extern\n{}\n\n}} // export\n\n", bind.abi);

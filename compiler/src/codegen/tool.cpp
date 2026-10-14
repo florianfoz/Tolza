@@ -9,6 +9,7 @@
 #include "codegen/insurance.hpp"
 #include "codegen/type.hpp"
 #include "compiler/compiler.hpp"
+#include "debug/test_assert.hpp"
 #include "id/nodeid.hpp"
 #include "id/typeid.hpp"
 #include "nexus/forward.hpp"
@@ -59,7 +60,9 @@ public:
 } // namespace codegen
 
 
-#define NOT_DEFINED assert(false);
+#define NOT_DEFINED(node)                                                                                              \
+  ;                                                                                                                    \
+  ASSERT_NODE(false, node, "Undefined tooling");
 
 
 codegen::Tools::Tools(codegen::Codegen_AST& p_res)
@@ -79,7 +82,10 @@ llvm::Value* codegen::Tools::engage_move_semantic(ast::ID p_target) noexcept
   auto* dest = builder.CreateAlloca(ty, nullptr, "tmp_moved");
   return dest;
 }
-llvm::Value* codegen::Tools::engage_copy_semantic(ast::ID target) noexcept {NOT_DEFINED}
+llvm::Value* codegen::Tools::engage_copy_semantic(ast::ID target) noexcept
+{
+  NOT_DEFINED(target);
+}
 
 
 std::expected<llvm::Constant*, std::string> codegen::Tools::create_constant(ast::ID lit_id) noexcept
@@ -499,7 +505,7 @@ std::tuple<llvm::Value*, llvm::Value*, bool> codegen::Tools::get_span(ast::ID no
     return get_span(nodeid.def().node());
   }
 
-  assert(false && "invalid range");
+  ASSERT_NODE(false, nodeid, "invalid range");
 }
 
 llvm::Value* codegen::Tools::codegen_unary_op(ast::ID term, ast::EOp_Unary unary_op) const noexcept
@@ -595,7 +601,7 @@ llvm::Value* codegen::Tools::codegen_unary_op(ast::ID term, ast::EOp_Unary unary
   if (!op)
     res.add_error(
         207, term.get(),
-        std::format("Illegal unary operation ({}) on type \"{}\'", ast::EOp_Unary_to_str(unary_op), dump(term.type())),
+        std::format("Illegal unary operation ({}) on type \"{}\'", ast::EOp_Unary_to_str(unary_op), term.type().dump()),
         "");
 
   return op;
@@ -909,8 +915,8 @@ llvm::Value* codegen::Tools::codegen_binary_op(ast::ID left, ast::ID right, ast:
   if (!op)
     res.add_error(207, left.get(),
                   std::format("Illegal operation ({}) between types:\n  `{}` {} `{}`",
-                              std::string(ast::EOp_Bin_to_str(op_ty)), dump(left.type()), ast::EOp_Bin_to_str(op_ty),
-                              dump(right.type())),
+                              std::string(ast::EOp_Bin_to_str(op_ty)), left.type().dump(), ast::EOp_Bin_to_str(op_ty),
+                              right.type().dump()),
                   "");
 
   return op;

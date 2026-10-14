@@ -1,0 +1,12 @@
+[submodule "common/external/enumlite"]
+	path = common/external/enumlite
+	url = https://github.com/florianfoz/enumlite.git
+[submodule "common/external/tomlplusplus"]
+	path = common/external/tomlplusplus
+	url = https://github.com/marzer/tomlplusplus.git
+[submodule "common/external/cli11"]
+	path = common/external/cli11
+	url = https://github.com/cliutils/CLI11.git
+[submodule "compiler/external/json"]
+	path = compiler/external/json
+	url = https://github.com/nlohmann/json

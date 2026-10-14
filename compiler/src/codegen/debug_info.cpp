@@ -4,6 +4,7 @@
 #include "codegen/codegen.hpp"
 #include "compiler/compilation_unit.hpp"
 #include "compiler/file_info.hpp"
+#include "debug/test_assert.hpp"
 #include "id/cuid.hpp"
 #include "id/nodeid.hpp"
 #include "id/tokid.hpp"
@@ -48,7 +49,7 @@ llvm::DILocation* codegen::DebugInfo::location(ast::ID nodeid, llvm::DILocalScop
 
   case ast::ENodeKind::CodeBlock:                  current_scp = new_scope;
 
-  default:                                         assert(!new_scope && "No new scope for unscoped node");
+  default:                                         ASSERT_NODE(!new_scope, nodeid, "No new scope for unscoped node");
   }
 
   return llvm::DILocation::get(res->ctx, tokid.line(), tokid.col(), current_scp);

@@ -1,16 +1,16 @@
-#include "token_generator.hpp"
+#include "metacode/token_generator.hpp"
 
 #include "ast/data.hpp"
 #include "compiler/compilation_unit.hpp"
 #include "compiler/compiler.hpp"
 #include "compiler/file_info.hpp"
+#include "debug/error_output.hpp"
 #include "id/metaid.hpp"
 #include "id/tokid.hpp"
 #include "lexer/pool.hpp"
 #include "metacode/data.hpp"
 #include "metacode/pool.hpp"
 #include "metacode/preprocessor.hpp"
-#include "misc/error_output.hpp"
 
 #include <algorithm>
 #include <cassert>

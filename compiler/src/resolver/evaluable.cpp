@@ -13,6 +13,7 @@
 #include "ast/node/operation.hpp"
 #include "ast/node/statement.hpp"
 #include "ast/tool.hpp"
+#include "id/defid.hpp" // mandatory, false positive
 #include "id/nodeid.hpp"
 
 #include <cassert>

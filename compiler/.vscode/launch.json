@@ -2,46 +2,47 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug about",
+            "name": "about",
             "type": "lldb-dap",
             "request": "launch",
-            "program": "${workspaceFolder}/build/debug/tolza-compiler",
+            "program": "${command:cmake.launchTargetPath}",
+            "cwd": "${command:cmake.launchTargetDirectory}",
             "args": [
                 "--about"
             ],
-            "cwd": "${workspaceFolder}",
-            "preLaunchTask": "build-debug"
+            "preLaunchTask": "CMake: Build"
         },
         {
-            "name": "Debug cogito",
+            "name": "cogito",
             "type": "lldb-dap",
             "request": "launch",
-            "program": "${workspaceFolder}/build/debug/tolza-compiler",
+            "program": "${command:cmake.launchTargetPath}",
+            "cwd": "${command:cmake.launchTargetDirectory}",
             "args": [
                 "cogito"
             ],
-            "cwd": "${workspaceFolder}",
-            "preLaunchTask": "build-debug"
+            "preLaunchTask": "CMake: Build"
         },
         {
-            "name": "Debug build classic",
+            "name": "build",
             "type": "lldb-dap",
             "request": "launch",
-            "program": "${workspaceFolder}/build/debug/tolza-compiler",
+            "program": "${command:cmake.launchTargetPath}",
+            "cwd": "${command:cmake.launchTargetDirectory}",
             "args": [
                 "build",
                 "--profiles",
                 "debug",
                 "~/test"
             ],
-            "cwd": "${workspaceFolder}",
-            "preLaunchTask": "build-debug"
+            "preLaunchTask": "CMake: Build"
         },
         {
-            "name": "Debug check classic",
+            "name": "check",
             "type": "lldb-dap",
             "request": "launch",
-            "program": "${workspaceFolder}/build/debug/tolza-compiler",
+            "program": "${command:cmake.launchTargetPath}",
+            "cwd": "${command:cmake.launchTargetDirectory}",
             "args": [
                 "build",
                 "--check",
@@ -53,8 +54,7 @@
                 "/tmp/tolza/bad7d330f22f162fdb868efdf3c98c0f724e409b4346e9de24b11d8155cdebbf",
                 "~/test",
             ],
-            "cwd": "${workspaceFolder}",
-            "preLaunchTask": "build-debug"
+            "preLaunchTask": "CMake: Build"
         }
     ]
 }

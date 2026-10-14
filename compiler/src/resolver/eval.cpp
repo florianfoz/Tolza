@@ -10,9 +10,9 @@
 #include "compiler/compilation_unit.hpp"
 #include "compiler/compiler.hpp"
 #include "compiler/file_info.hpp"
+#include "debug/error_output.hpp"
 #include "id/base.hpp"
 #include "lexer/pool.hpp"
-#include "misc/error_output.hpp"
 #include "nexus/forward.hpp"
 #include "type/data.hpp"
 

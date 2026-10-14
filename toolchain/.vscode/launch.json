@@ -2,10 +2,11 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug workspace creation",
+            "name": "workspace creation",
             "type": "lldb-dap",
             "request": "launch",
-            "program": "${workspaceFolder}/build/debug/tolza",
+            "program": "${command:cmake.launchTargetPath}",
+            "cwd": "${command:cmake.launchTargetDirectory}",
             "args": [
                 "new",
                 "workspace",
@@ -14,15 +15,14 @@
                 "test",
                 "-f"
             ],
-            "env": [],
-            "cwd": "${workspaceFolder}",
-            "preLaunchTask": "build-debug"
+            "preLaunchTask": "CMake: Build"
         },
         {
-            "name": "Debug profile creation",
+            "name": "profile creation",
             "type": "lldb-dap",
             "request": "launch",
-            "program": "${workspaceFolder}/build/debug/tolza",
+            "program": "${command:cmake.launchTargetPath}",
+            "cwd": "${command:cmake.launchTargetDirectory}",
             "args": [
                 "new",
                 "profile",
@@ -30,15 +30,14 @@
                 "--name",
                 "template"
             ],
-            "env": [],
-            "cwd": "${workspaceFolder}",
-            "preLaunchTask": "build-debug"
+            "preLaunchTask": "CMake: Build"
         },
         {
-            "name": "Debug manifest creation",
+            "name": "manifest creation",
             "type": "lldb-dap",
             "request": "launch",
-            "program": "${workspaceFolder}/build/debug/tolza",
+            "program": "${command:cmake.launchTargetPath}",
+            "cwd": "${command:cmake.launchTargetDirectory}",
             "args": [
                 "new",
                 "manifest",
@@ -46,62 +45,56 @@
                 "--name",
                 "test"
             ],
-            "env": [],
-            "cwd": "${workspaceFolder}",
-            "preLaunchTask": "build-debug"
+            "preLaunchTask": "CMake: Build"
         },
         {
-            "name": "Debug audit",
+            "name": "audit",
             "type": "lldb-dap",
             "request": "launch",
-            "program": "${workspaceFolder}/build/debug/tolza",
+            "program": "${command:cmake.launchTargetPath}",
+            "cwd": "${command:cmake.launchTargetDirectory}",
             "args": [
                 "audit",
                 "${workspaceFolder}/../../tolza-workspace/tolza-example"
             ],
-            "env": [],
-            "cwd": "${workspaceFolder}",
-            "preLaunchTask": "build-debug"
+            "preLaunchTask": "CMake: Build"
         },
         {
-            "name": "Debug check",
+            "name": "check",
             "type": "lldb-dap",
             "request": "launch",
-            "program": "${workspaceFolder}/build/debug/tolza",
+            "program": "${command:cmake.launchTargetPath}",
+            "cwd": "${command:cmake.launchTargetDirectory}",
             "args": [
                 "check",
                 "workspace",
                 "${workspaceFolder}/../../tolza-workspace/tolza-example"
             ],
-            "env": [],
-            "cwd": "${workspaceFolder}",
-            "preLaunchTask": "build-debug"
+            "preLaunchTask": "CMake: Build"
         },
         {
-            "name": "Debug gui",
+            "name": "gui",
             "type": "lldb-dap",
             "request": "launch",
-            "program": "${workspaceFolder}/build/debug/tolza",
+            "program": "${command:cmake.launchTargetPath}",
+            "cwd": "${command:cmake.launchTargetDirectory}",
             "args": [
                 "gui",
                 "${workspaceFolder}/../../tolza-workspace/tolza-example"
             ],
-            "env": [],
-            "cwd": "${workspaceFolder}",
-            "preLaunchTask": "build-debug"
+            "preLaunchTask": "CMake: Build"
         },
         {
-            "name": "Debug build",
+            "name": "build",
             "type": "lldb-dap",
             "request": "launch",
-            "program": "${workspaceFolder}/build/debug/tolza",
+            "program": "${command:cmake.launchTargetPath}",
+            "cwd": "${command:cmake.launchTargetDirectory}",
             "args": [
                 "build",
                 "${workspaceFolder}/../../tolza-workspace/tolza-example/tolza.toml"
             ],
-            "env": [],
-            "cwd": "${workspaceFolder}",
-            "preLaunchTask": "build-debug"
+            "preLaunchTask": "CMake: Build"
         }
     ]
 }

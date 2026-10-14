@@ -3,6 +3,7 @@
 #include "ast/data.hpp"
 #include "ast/dumper.hpp"
 #include "ast/node/declaration_global.hpp"
+#include "debug/test_assert.hpp"
 #include "id/modid.hpp"
 #include "id/nodeid.hpp"
 
@@ -38,7 +39,7 @@ void module::Port::export_item(ast::ID nodeid) noexcept
 bool module::Port::reexport_item(module::ID modid, ast::ID nodeid) noexcept
 {
   const auto* reexp = nodeid.as<ast::Global_Reexport>();
-  assert(reexp && "Invalid node type");
+  ASSERT_NODE(reexp, nodeid, "Invalid node type");
 
   auto [it, _] = reexported_module.try_emplace(reexp->alias);
 

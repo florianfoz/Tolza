@@ -5,8 +5,9 @@
 #include "ast/node/base.hpp"
 #include "ast/node/operation.hpp"
 #include "ast/tool.hpp"
+#include "debug/test_assert.hpp"
 #include "id/base.hpp"
-#include "id/defid.hpp"
+#include "id/defid.hpp" // mandatory, false positive
 #include "id/nodeid.hpp"
 #include "id/tokid.hpp"
 #include "lexer/data.hpp"
@@ -329,8 +330,7 @@ ast::ID parser::Parser_Declaration_Local::facet_pattern(ast::ECapability p_capa,
       R"(define facet mapping like:
   - `[ref/mut] CFacet{.field1: [ref/mut/copy]'a, .field2: 10} = val`)";
 
-  assert(ast::ENodeKind_is_symbol(p_facet_id.kind()));
-  // Illegal identifier, impossible to use a type
+  ASSERT_NODE(ast::ENodeKind_is_symbol(p_facet_id.kind()), p_facet_id, "Illegal identifier, impossible to use a type");
 
   auto& facet_pat = p.add_get_node<ast::Local_Pattern_Facet>(p.peek().tokid);
 
@@ -377,8 +377,7 @@ ast::ID parser::Parser_Declaration_Local::form_pattern(ast::ECapability p_capa, 
   (void)p.match(token::ETokenKind::STATIC_ACCESS);
   (void)p.match(token::ETokenKind::L_ANGLE);
 
-  assert(ast::ENodeKind_is_symbol(p_form_id.kind()));
-  // Illegal identifier, impossible to use a type
+  ASSERT_NODE(ast::ENodeKind_is_symbol(p_form_id.kind()), p_form_id, "Illegal identifier, impossible to use a type");
 
   auto& form_pat      = p.add_get_node<ast::Local_Pattern_Form>(p.peek().tokid);
   form_pat.name       = p_form_id;
@@ -464,8 +463,7 @@ ast::ID parser::Parser_Declaration_Local::enum_pattern(ast::ECapability p_capa, 
   - binding pattern conditionnal `if [ref/mut] Some(10) = value {...}`                            
   - check only indexation `[if/elif/while] value == Some`)";
 
-  assert(ast::ENodeKind_is_symbol(p_enum_id.kind()));
-  // Illegal identifier, impossible to use a type
+  ASSERT_NODE(ast::ENodeKind_is_symbol(p_enum_id.kind()), p_enum_id, "Illegal identifier, impossible to use a type");
 
   auto& pat = p.add_get_node<ast::Local_Pattern_Enum>(p.peek().tokid);
   pat.name  = p_enum_id;

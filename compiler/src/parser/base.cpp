@@ -9,6 +9,7 @@
 #include "compiler/compilation_unit.hpp"
 #include "compiler/compiler.hpp"
 #include "compiler/file_info.hpp"
+#include "debug/test_assert.hpp"
 #include "id/nodeid.hpp"
 #include "lexer/data.hpp"
 #include "lexer/pool.hpp"
@@ -71,7 +72,7 @@ ast::ID parser::Parser_Base::parse_import()
 
   imp.regex         = p.p_base->regex_path();
   const auto* regex = imp.regex.as<ast::Path_Regex>();
-  assert(regex && "Illegal regex node type");
+  ASSERT_NODE(regex, imp.regex, "Expected regex node type");
 
   if (regex->source == cu::EFileSource::bind) {
     (void)p.expect(254, token::ETokenKind::AS, "expected alias after a importation", "");

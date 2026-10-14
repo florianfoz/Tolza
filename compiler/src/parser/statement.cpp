@@ -24,7 +24,6 @@
 #include <string_view>
 
 
-
 ast::ID parser::Parser_Statement::parse_statement(bool p_is_silent_error)
 {
   constexpr std::string_view hint =

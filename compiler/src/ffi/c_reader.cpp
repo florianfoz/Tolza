@@ -8,6 +8,7 @@
 #include "ast/pool.hpp"
 #include "compiler/compilation_unit.hpp"
 #include "compiler/compiler.hpp"
+#include "debug/test_assert.hpp"
 #include "ffi/manager.hpp"
 #include "id/base.hpp"
 #include "id/nodeid.hpp"
@@ -33,11 +34,11 @@
 #include <format>
 #include <fstream>
 #include <initializer_list>
-#include <marzer/toml++.hpp>
 #include <memory>
 #include <ostream>
 #include <string>
 #include <string_view>
+#include <toml++/toml.hpp>
 #include <unordered_set>
 #include <utility>
 #include <vector>
@@ -876,7 +877,7 @@ ast::ID ffi::C_Reader::c_function_to_func(CXCursor cur) noexcept
 
   node.prototype = c_type_to_type(cur_ty);
   auto* proto_ty = node.prototype.as<type::Prototype>();
-  assert(proto_ty && "Must be a proto type");
+  ASSERT_NODE(proto_ty, node.nodeid(), "Must be a prototype");
 
   const int            n = clang_getNumArgTypes(cur_ty);
   std::vector<ast::ID> params;

@@ -1,4 +1,4 @@
-#include "codegen.hpp"
+#include "codegen/codegen.hpp"
 
 #include "ast/data.hpp"
 #include "ast/forward.hpp"
@@ -19,17 +19,16 @@
 #include "codegen/type.hpp"
 #include "compiler/compilation_unit.hpp"
 #include "compiler/compiler.hpp"
+#include "debug/test_assert.hpp"
 #include "id/nodeid.hpp"
 #include "nexus/forward.hpp"
 #include "pool/node_to_ext.hpp"
 #include "pool/node_to_metadata.hpp"
 #include "resolver/base.hpp"
 #include "type/data.hpp"
-#include "type/pool.hpp"
 #include "type/tool.hpp"
 #include "type/type.hpp"
 
-#include <algorithm>
 #include <cassert>
 #include <common/compiler_options.hpp>
 #include <cstdint>
@@ -41,7 +40,6 @@
 #include <llvm-19/llvm/IR/IRBuilder.h>
 #include <llvm/ADT/APFloat.h>
 #include <llvm/ADT/APInt.h>
-#include <llvm/ADT/STLExtras.h>
 #include <llvm/IR/Attributes.h>
 #include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/Constant.h>
@@ -60,7 +58,6 @@
 #include <llvm/IR/Value.h>
 #include <llvm/IR/Verifier.h>
 #include <llvm/Support/Casting.h>
-#include <llvm/Support/raw_ostream.h>
 #include <llvm/Transforms/Utils/ModuleUtils.h>
 #include <string>
 #include <string_view>
@@ -81,7 +78,7 @@ public:
 
 #define NOT_DEFINED                                                                                                    \
   ;                                                                                                                    \
-  assert(false);
+  ASSERT_NODE(false, n.nodeid(), "Codegen not defined");
 
 #define GENERATION_GUARD                                                                                               \
   if (auto it = generation.find(n.nodeid()); it != generation.end()) return it->second;
@@ -259,7 +256,7 @@ llvm::Type* codegen::Codegen_AST::get_type(type::ID tyid) noexcept
 }
 llvm::Value* codegen::Codegen_AST::add_generation(ast::ID nodeid, llvm::Value* v) noexcept
 {
-  assert(v && "Invalid llvm value");
+  ASSERT_NODE(v, nodeid, "Invalid llvm value");
 
   generation.try_emplace(nodeid, v);
   llvm_item_count++;
@@ -267,7 +264,7 @@ llvm::Value* codegen::Codegen_AST::add_generation(ast::ID nodeid, llvm::Value* v
 }
 llvm::Constant* codegen::Codegen_AST::add_generation(ast::ID nodeid, llvm::Constant* v) noexcept
 {
-  assert(v && "Invalid llvm constant");
+  ASSERT_NODE(v, nodeid, "Invalid llvm constant");
 
   generation.try_emplace(nodeid, v);
   llvm_item_count++;
@@ -321,7 +318,7 @@ std::pair<llvm::Type*, llvm::Value*> codegen::Codegen_AST::codegen_collection_da
     }
   }
 
-  assert(false);
+  ASSERT_NODE(false, nodeid, "Impossible to resolve node as collection ptr");
 }
 
 llvm::Function* codegen::Codegen_AST::codegen_globals_ctor() noexcept
@@ -444,7 +441,7 @@ llvm::Value* codegen::Codegen_AST::codegen_Symbol_Qualified(const ast::Symbol_Qu
 llvm::Type* codegen::Codegen_AST::codegen_Symbol_Type(const ast::Symbol_Type& n) noexcept
 {
   const auto tyid = n.nodeid().type();
-  assert(tyid && "Invalid type");
+  ASSERT_NODE(bool(tyid), n.nodeid(), "Invalid type");
   return get_type(tyid);
 }
 
@@ -487,7 +484,7 @@ llvm::Value* codegen::Codegen_AST::codegen_Global_Variable(const ast::Global_Var
   if (n.expression) {
     if (auto out = eval.evaluate_expression(n.expression)) {
       auto* v = new llvm::GlobalVariable(*mod, ty, is_const, linkage, out.value(), n.name);
-      assert(v->getValueType() == out.value()->getType() && "Not the same type");
+      ASSERT_NODE(v->getValueType() == out.value()->getType(), n.expression, "Not the same type");
       return add_generation(n.nodeid(), v);
     }
 
@@ -495,7 +492,7 @@ llvm::Value* codegen::Codegen_AST::codegen_Global_Variable(const ast::Global_Var
 
     codegen_inject_global_init([&]() {
       auto* expr = codegen_node(n.expression);
-      assert(v->getValueType() == expr->getType() && "Not the same type");
+      ASSERT_NODE(v->getValueType() == expr->getType(), n.expression, "Not the same type");
       builder.CreateStore(expr, v);
     });
 
@@ -505,7 +502,7 @@ llvm::Value* codegen::Codegen_AST::codegen_Global_Variable(const ast::Global_Var
 
   auto* init = insurance.ensure_null_global_value(n.type.canonical());
   auto* v    = new llvm::GlobalVariable(*mod, ty, is_const, linkage, init, n.name);
-  assert(v->getValueType() == init->getType() && "Not the same type");
+  ASSERT_NODE(v->getValueType() == init->getType(), n.expression, "Not the same type");
 
   return add_generation(n.nodeid(), v);
 }
@@ -545,7 +542,7 @@ llvm::Value* codegen::Codegen_AST::codegen_Global_Function(const ast::Global_Fun
     if (count >= n.parameters.size()) break;
 
     const auto* param = n.parameters[count].as<ast::Local_Parameter>();
-    assert(param);
+    ASSERT_NODE(param, n.parameters[count], "Invalid ast facial kind (Local_Parameter)");
     arg.setName(param->name);
     if (arg.getType()->isPointerTy()) arg.addAttr(llvm::Attribute::NoAlias);
     (void)add_generation(n.parameters[count], &arg);
@@ -634,7 +631,7 @@ llvm::Function* codegen::Codegen_AST::codegen_SFM_Facet(const ast::SFM_Facet& n)
   unsigned offset = 0;
   for (auto fid : n.fields) {
     auto* f = fid.as<ast::SFM_Facet_Field>();
-    assert(f && "Invalid ast facial kind");
+    ASSERT_NODE(f, fid, "Invalid ast facial kind");
 
     if (f->is_no_default) {
       offset++;
@@ -672,7 +669,7 @@ llvm::Function* codegen::Codegen_AST::codegen_SFM_Form(const ast::SFM_Form& n) n
   for (auto fid : n.facets) {
     auto* f_def          = fid.def().node().as<ast::SFM_Facet>();
     auto* this_facet_ptr = builder.CreateStructGEP(ty, this_ptr, offset, f_def->name + "_" + std::to_string(offset));
-    assert(f_def && "Invalid ast facial kind");
+    ASSERT_NODE(f_def, fid, "Invalid ast facial kind (SFM_Facet)");
 
     auto* f_ctor = codegen_SFM_Facet(*f_def);
 
@@ -721,7 +718,7 @@ llvm::Value* codegen::Codegen_AST::codegen_Local_Parameter(const ast::Local_Para
   GENERATION_GUARD
 
   auto* llvm_fn = llvm::cast<llvm::Function>(codegen_node(n.parent_callable));
-  assert(llvm_fn);
+  ASSERT_NODE(llvm_fn, n.parent_callable, "Invalid llvm cast (llvm::Function)");
   auto* arg = llvm_fn->getArg(n.position);
   assert(arg);
 
@@ -880,7 +877,7 @@ llvm::Constant* codegen::Codegen_AST::codegen_Literal_Rune(const ast::Literal_Ru
 {
   CONSTANT_GUARD
 
-  assert(n.code_points.size() == 4 && "UTF-32 character must be 4 bytes");
+  ASSERT_NODE(n.code_points.size() == 4, n.nodeid(), "UTF-32 character must be 4 bytes");
   uint32_t codePoint = 0;
   for (int i = 0; i < 4; ++i)
     codePoint |= static_cast<uint32_t>(static_cast<unsigned char>(n.code_points[i])) << (8 * i);
@@ -1107,7 +1104,7 @@ llvm::Value* codegen::Codegen_AST::codegen_Expression_Invocation(const ast::Expr
             : llvm::Function::InternalLinkage;
 
     auto* fn_ty = llvm::cast<llvm::FunctionType>(get_type(fn_ptr->prototype));
-    assert(fn_ty);
+    ASSERT_NODE(fn_ty, fn_ptr->nodeid(), "Failed llvm cast (llvm::FunctionType)");
     auto* callee = generate_stub(fn_ty, fn_ptr->name, liknage);
 
     size_t                    count = 0;
@@ -1571,7 +1568,7 @@ llvm::ReturnInst* codegen::Codegen_AST::codegen_Statement_Return(const ast::Stat
   if (auto it = returns.find(n.nodeid()); it != returns.end()) return it->second;
 
   const auto protoid = type::get_prototype(n.returnable);
-  assert(protoid);
+  ASSERT_NODE(bool(protoid), n.returnable, "Prototype not found");
   const auto* proto = protoid.as<type::Prototype>();
 
   llvm::ReturnInst* ret = nullptr;
@@ -1619,7 +1616,7 @@ llvm::Value* codegen::Codegen_AST::codegen_Operation_Cast_As(const ast::Operatio
   case ast::Operation_Cast_As::ECastType::AS: {
     if (auto* cast = tools.codegen_explicit_cast(n.expression, n.type)) return cast;
 
-    common::compiler::DEBUG_TOLZA_ICE("Unimplemented legal explicit cast");
+    ASSERT_NODE(false, n.nodeid(), "Unimplemented legal explicit cast");
   }
   case ast::Operation_Cast_As::ECastType::AS_REINTERPRET: {
     auto* expr = codegen_node(n.expression);
@@ -1650,7 +1647,7 @@ llvm::Value* codegen::Codegen_AST::codegen_Operation_Transfert(const ast::Operat
   GENERATION_GUARD
 
   auto* ptr = insurance.ensure_lvalue(n.left);
-  assert(ptr);
+  ASSERT_NODE(ptr, n.left, "Is not a lvalue");
 
   llvm::Value* val = nullptr;
 
@@ -1659,7 +1656,7 @@ llvm::Value* codegen::Codegen_AST::codegen_Operation_Transfert(const ast::Operat
   } else {
     val = insurance.ensure_rvalue(n.right);
   }
-  assert(val);
+  ASSERT_NODE(val, n.nodeid(), "Transfert value invalid");
 
   return add_generation(n.nodeid(), builder.CreateStore(val, ptr));
 }

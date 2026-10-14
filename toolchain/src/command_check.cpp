@@ -1,26 +1,15 @@
-/*
- * This program include and use the marzer/tomlplusplus project
- * You can find this project at
- *
- *     https://marzer.github.io/tomlplusplus/
- *
- * Used for the ini format file reading.
- */
-
-
 #include "command_check.hpp"
 
 #include "command_workspace.hpp"
 
-#include <common/common.hpp>
 #include <common/compiler_options.hpp>
 #include <common/environment.hpp>
-#include <common/fileutils.hpp>
-#include <common/utils.hpp>
-#include <expected>
 #include <filesystem>
-#include <marzer/toml++.hpp>
 #include <print>
+#include <stdexcept>
+#include <string>
+#include <string_view>
+#include <toml++/toml.hpp>
 
 namespace fs = std::filesystem;
 

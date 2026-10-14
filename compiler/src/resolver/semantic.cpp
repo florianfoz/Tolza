@@ -16,6 +16,7 @@
 #include "ast/tool.hpp"
 #include "compiler/compilation_unit.hpp"
 #include "compiler/compiler.hpp"
+#include "debug/test_assert.hpp"
 #include "module/module.hpp"
 #include "module/pool.hpp"
 #include "nexus/forward.hpp"
@@ -40,7 +41,7 @@ bool resolver::Semantic::start_resolver()
 semantic::Metadata& resolver::Semantic::add_metadata(ast::ID nodeid, semantic::Metadata& metadata)
 {
   assert(nodeid);
-  assert(&metadata);
+  ASSERT_NODE(&metadata, nodeid, "Invalid metadata");
   auto& m = COMPILER.semantic_metadata.add(nodeid);
   m       = metadata;
   return m;
@@ -103,7 +104,8 @@ void resolver::Semantic::resolve_node(ast::ID nodeid)
     ignore(Literal_Text_Pure);
     ignore(Symbol_Id);
     ignore(Symbol_Qualified);
-  default: assert(false && "Unhandled node resolution");
+  default:
+    ASSERT_NODE(false, nodeid, std::format("Unhandled node resolution ({})", ast::ENodeKind_to_str(nodeid.kind())));
   }
 
 #undef resolve
@@ -228,7 +230,7 @@ void resolver::Semantic::resolve_Operation_Binary(ast::Operation_Binary& n)
     add_error(
         205, n.header,
         std::format("Invalid binary operation on two differents types:\n  - left type: \"{}\"\n  - right type: \"{}\"",
-                    dump(n.left.type()), dump(n.right.type())),
+                    n.left.type().dump(), n.right.type().dump()),
         "");
     return;
   }
@@ -236,7 +238,7 @@ void resolver::Semantic::resolve_Operation_Binary(ast::Operation_Binary& n)
   if (const auto* prim = n.left.type().as<type::Primitive>()) {
     if (!type::rule::can_op_primitive(prim->primitive, n.op_ty)) {
       add_error(206, n.header,
-                std::format(R"(Invalid operation "{}" on "{}" type.)", EOp_Bin_to_str(n.op_ty), dump(n.left.type())),
+                std::format(R"(Invalid operation "{}" on "{}" type.)", EOp_Bin_to_str(n.op_ty), n.left.type().dump()),
                 "");
       return;
     }
@@ -253,7 +255,7 @@ void resolver::Semantic::resolve_Expression_Invocation(ast::Expression_Invocatio
   const auto  decl   = n.nodeid().def().node();
   const auto  params = ast::get_parameters(decl);
   const auto* proto  = ast::get_prototype(decl);
-  assert(proto && "Invalid type id");
+  ASSERT_NODE(proto, n.nodeid(), "Invalid type id");
 
   size_t count = 0;
   for (auto paramid : params) {

@@ -4,6 +4,7 @@
 #include "ast/forward.hpp"
 #include "ast/node/operation.hpp"
 #include "ast/tool.hpp"
+#include "debug/test_assert.hpp"
 #include "lexer/data.hpp"
 #include "lexer/pool.hpp"
 #include "nexus/forward.hpp"
@@ -18,6 +19,7 @@
 
 #include <cassert>
 #include <format>
+#include <string>
 #include <string_view>
 #include <vector>
 
@@ -32,10 +34,11 @@ ast::ID parser::Parser_Expression::parse_expression()
       || p.check(token::ETokenKind::OP_MULTIPLY)) {
     auto& n = p.add_get_node<ast::Operation_Mem>(p.peek().tokid);
 
-    (void)p.next();
-    (void)p.match(token::ETokenKind::TICK);
+    n.op = ast::EOp_Mem_from_str(std::string(p.peek().tokid.str()));
 
-    n.op     = ast::EOp_Mem_from_str(p.peek().tokid.str());
+    (void)p.next();                         // consume mem op
+    (void)p.match(token::ETokenKind::TICK); // consume '
+
     n.target = p.p_expr->parse_expression();
     return n.nodeid();
   }
@@ -97,11 +100,6 @@ ast::ID parser::Parser_Expression::base_expression()
   throw Parser_Exception(p, 79, p.peek(), std::format("Unexpected '{}' keyword.", p.tok_to_str(p.peek().tokid)), hint);
 }
 
-ast::ID parser::Parser_Expression::assign(ast::ID left)
-{
-}
-
-
 ast::ID parser::Parser_Expression::suffix_expression(ast::ID p_base_expr)
 {
   if (!p_base_expr) throw Parser_Exception(p, 611, p.peek(), "Unexpected expression", "");
@@ -136,7 +134,7 @@ ast::ID parser::Parser_Expression::suffix_expression(ast::ID p_base_expr)
     }
     // function call
     else if (p.check(token::ETokenKind::L_PAREN)) {
-      assert(ast::ENodeKind_is_symbol(p_base_expr.kind()));
+      ASSERT_NODE(ast::ENodeKind_is_symbol(p_base_expr.kind()), p_base_expr, "Invalid node kind");
       p_base_expr = function_call(p_base_expr);
     }
     // run rule
@@ -183,8 +181,7 @@ ast::ID parser::Parser_Expression::cast_as(ast::ID p_expr)
 {
   auto& cast_as = p.add_get_node<ast::Operation_Cast_As>(p.peek().tokid);
 
-  assert(p.check(token::ETokenKind::AS) && "Unexpected token encounted in casting");
-  (void)p.next(); // consume as
+  (void)p.expect(912, token::ETokenKind::AS, "Unexpected token encounted in casting", "");
 
   if (p.match(token::ETokenKind::EXCLAMATION))
     cast_as.cast_type = ast::Operation_Cast_As::ECastType::AS_REINTERPRET;

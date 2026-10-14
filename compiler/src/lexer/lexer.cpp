@@ -1,12 +1,12 @@
-#include "lexer.hpp"
+#include "lexer/lexer.hpp"
 
 #include "compiler/compilation_unit.hpp"
 #include "compiler/compiler.hpp"
 #include "compiler/file_info.hpp"
+#include "debug/error_output.hpp"
 #include "id/tokid.hpp"
 #include "lexer/data.hpp"
 #include "lexer/pool.hpp"
-#include "misc/error_output.hpp"
 
 #include <cassert>
 #include <common/utils.hpp>
@@ -17,6 +17,7 @@
 #include <set>
 #include <string_view>
 #include <vector>
+
 
 
 Lexer::DFANode::DFANode()

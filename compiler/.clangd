@@ -1,9 +1,14 @@
+
 CompileFlags:
   CompilationDatabase: build/debug
+
+Index:
+  Background: Skip
 
 Diagnostics:
   UnusedIncludes: Strict
   MissingIncludes: Strict
-
   Includes:
     AnalyzeAngledIncludes: true
+  ClangTidy:
+    FastCheckFilter: Strict

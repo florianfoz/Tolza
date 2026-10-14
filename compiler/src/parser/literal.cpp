@@ -1,6 +1,7 @@
 #include "ast/node/literal.hpp"
 
 #include "ast/node/numeric_128_bits.hpp"
+#include "debug/test_assert.hpp"
 #include "lexer/data.hpp"
 #include "lexer/pool.hpp"
 #include "nexus/forward.hpp"
@@ -661,7 +662,7 @@ ast::ID parser::Parser_Literal::literal_record(ast::ID name)
     return literal_form(name);
   }
 
-  assert(false);
+  ASSERT_NODE(false, name, "Invalid literal record");
 }
 
 ast::ID parser::Parser_Literal::literal_form(ast::ID name)

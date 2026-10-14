@@ -7,14 +7,19 @@
 #include "command_compiler.hpp"
 #include "command_package.hpp"
 #include "command_workspace.hpp"
+#include "common/commands.hpp"
 #include "toolchain/toolchain.hpp"
 
-#include <CLIUtils/CLI11.hpp>
+#include <CLI/CLI.hpp>
 #include <common/common.hpp>
 #include <common/compiler_options.hpp>
 #include <common/fileutils.hpp>
 #include <common/toolchain_options.hpp>
+#include <cstddef>
+#include <cstdlib>
 #include <filesystem>
+#include <format>
+#include <iterator>
 #include <print>
 #include <string>
 
