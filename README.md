@@ -87,7 +87,7 @@ _ views are a package of facets
 This avoids hidden polymorphism and runtime dispatch.
 
 
-```
+```rust
 // speculative standard lib
 facet BufferData<T> { data: ptr'T = nullptr, size: usize = 0, capacity: usize = 0 }
 form Buffer<T> { use BufferData<T> }
@@ -138,7 +138,7 @@ This makes performance characteristics visible and auditable.
 
 ## A Simple Example
 
-```tolza
+```rust
 faczt Vec2 {
     x: f32 = 0,
     y: f32 = 0,
@@ -187,7 +187,7 @@ Tolza allows the use of external code with minimal boilerplate and no name colli
 > Only the C binder is compiler-native. A copy of the C binder script is included to illustrate the binding logic.
 
 ### Example: Using a C Library
-```Tolza
+```rust
 import bind::C::stdio as C
 
 fn main() {
@@ -249,12 +249,12 @@ check [dependencies](/docs/CONTRIBUTING_CODE.md#install-dependencies)
 3 - install command
 
 install toolchain: 
-```
+```bash
 cd REPO_LOCATION/tolza/toolchain && cmake --preset release && cmake --install build/release
 ```
 
 install compiler:
-```
+```bash
 cd REPO_LOCATION/tolza/compiler && cmake --preset release && cmake --install build/release
 ```
 
